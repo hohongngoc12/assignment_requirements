@@ -1,0 +1,44 @@
+url = []
+for i in range(2):
+    aa = f"https://vnexpress.net/kinh-doanh-p{i}"
+    url.append(aa)
+
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+def GetSoup(url):
+    response = requests.get(url)
+    html_content = response.content
+    soup = BeautifulSoup(html_content, 'html.parser')
+    return soup
+
+link = []
+text = []
+title = []
+
+for i in url:  # Lặp qua 50 trang
+    soup = GetSoup(i)
+    descriptions = soup.find_all('p', class_='description')
+    
+    for desc in descriptions:
+        try:
+            link.append(desc.a['href'])
+            text.append(desc.a.text.strip())
+            title.append(desc.a['title'])
+        except Exception as e:
+            print(f"Error: {e}")
+
+# Tạo DataFrame từ dữ liệu
+data = {
+    'Title': title,
+    'Text': text,
+    'Link': link
+}
+
+df = pd.DataFrame(data)
+
+df.head(10)
+
+df.to_json('vnexpress_data.json', orient='records', lines=True)
+print("Data saved to 'vnexpress_data.json' file.")
