@@ -1,7 +1,6 @@
-import json
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
+import json
 
 def GetSoup(url):
     response = requests.get(url)
@@ -9,37 +8,29 @@ def GetSoup(url):
     soup = BeautifulSoup(html_content, 'html.parser')
     return soup
 
-link = []
-text = []
-title = []
+data = {}
 
 for i in range(50):  # Lặp qua 50 trang
     url = f"https://vnexpress.net/phap-luat-p{i}"
     soup = GetSoup(url)
     descriptions = soup.find_all('p', class_='description')
     
-    for desc in descriptions:
+    for idx, desc in enumerate(descriptions, start=1):
         try:
-            link.append(desc.a['href'])
-            text.append(desc.a.text.strip())
-            title.append(desc.a['title'])
+            title = desc.a['title']
+            content = desc.a.text.strip()
+            url = desc.a['href']
+            
+            data[f"Article_{idx}"] = {
+                'title': title,
+                'content': content,
+                'url': url
+            }
         except Exception as e:
             print(f"Error: {e}")
 
-# Tạo DataFrame từ dữ liệu
-data = {
-    'Title': title,
-    'Text': text,
-    'Link': link
-}
-
-df = pd.DataFrame(data)
-
-# Chuyển DataFrame thành một danh sách các dictionaries
-data_json = df.to_dict(orient='records')
-
 # Ghi dữ liệu vào tệp JSON
 with open('vnexpress_data.json', 'w', encoding='utf-8') as f:
-    json.dump(data_json, f, ensure_ascii=False)
+    json.dump(data, f, ensure_ascii=False, indent=4)
 
 print("Data saved to 'vnexpress_data.json' file.")
