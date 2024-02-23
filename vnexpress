@@ -11,7 +11,7 @@ def GetSoup(url):
 data = {}
 
 for i in range(50):  # Lặp qua 50 trang
-    url = f"https://vnexpress.net/phap-luat-p{i}"
+    url = f"https://vnexpress.net/phap-luat/ho-so-pha-an-p{i}"
     soup = GetSoup(url)
     descriptions = soup.find_all('p', class_='description')
     
