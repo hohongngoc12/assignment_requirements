@@ -1,8 +1,4 @@
-url = []
-for i in range(2):
-    aa = f"https://vnexpress.net/kinh-doanh-p{i}"
-    url.append(aa)
-
+import json
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -17,8 +13,9 @@ link = []
 text = []
 title = []
 
-for i in url:  # Lặp qua 50 trang
-    soup = GetSoup(i)
+for i in range(50):  # Lặp qua 50 trang
+    url = f"https://vnexpress.net/phap-luat-p{i}"
+    soup = GetSoup(url)
     descriptions = soup.find_all('p', class_='description')
     
     for desc in descriptions:
@@ -38,7 +35,11 @@ data = {
 
 df = pd.DataFrame(data)
 
-df.head(10)
+# Chuyển DataFrame thành một danh sách các dictionaries
+data_json = df.to_dict(orient='records')
 
-df.to_json('vnexpress_data.json', orient='records', lines=True)
+# Ghi dữ liệu vào tệp JSON
+with open('vnexpress_data.json', 'w', encoding='utf-8') as f:
+    json.dump(data_json, f, ensure_ascii=False)
+
 print("Data saved to 'vnexpress_data.json' file.")
